@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-KyZXEAg3QhqLMpG8r+8fhAXLRk2vvoC2f3B09zVXn8CA5QIVfZOJ3BCsw2P0p/We" crossorigin="anonymous">
+  <link rel="stylesheet" href="./css/styles.css">
+  <script type="module">
+    import { createTodoApp } from './js/todo-app/view.js';
+
+    const todoApp = document.getElementById('todo-app');
+    let importLink = './js/todo-app/api.js';
+
+    switchButton.addEventListener('click', () => {
+      if (switchButton.dataset.switch === 'api') {
+        loadImport('./js/todo-app/ls.js', 'ls', 'Перейти на серверное хранилище');
+        getTodoApp();
+      } else {
+        loadImport('./js/todo-app/api.js', 'api', 'Перейти на локальное хранилище');
+        getTodoApp();
+      };
+    });
+
+    const owner = 'Мои дела';
+
+    function loadImport(url, repository, buttonText) {
+      importLink = url;
+      switchButton.dataset.switch = repository;
+      switchButton.innerText = buttonText;
+      todoApp.innerHTML = '';
+    };
+
+    async function getTodoApp() {
+
+      const {
+        getTodoList,
+        createTodoItem,
+        switchTodoItemDone,
+        deleteTodoItem
+      } = await import(importLink);
+
+      const todoItemList = await getTodoList(owner);
+
+      createTodoApp(todoApp, {
+        title: 'Мои дела',
+        owner,
+        todoItemList,
+        onCreateFormSubmit: createTodoItem,
+        onDoneClick: switchTodoItemDone,
+        onDeleteClick: deleteTodoItem
+      });
+     };
+
+     getTodoApp();
+  </script>
+  <title>TODO</title>
+</head>
+<body>
+  <div class="container mb-5">
+    <nav class="nav">
+      <a href="my.html" class="nav-link">Мои дела</a>
+      <a href="dad.html" class="nav-link">Дела папы</a>
+      <a href="mom.html" class="nav-link">Дела мамы</a>
+    </nav>
+    <button class="button" id="switchButton" data-switch="api">
+      Перейти на локальное хранилище
+    </button>
+  </div>
+  <div id="todo-app" class="container"></div>
+</body>
+</html>
